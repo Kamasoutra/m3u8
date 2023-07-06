@@ -182,7 +182,6 @@ defmodule M3U8 do
   defp convert_to_absolute(m3u8, _), do: {:error, m3u8}
 
   defp do_convert_to_absolute([], _), do: []
-  defp do_convert_to_absolute([data], _), do: [data]
   defp do_convert_to_absolute([%{uri: "https://" <> _} = el | rest], path),
     do: [el | do_convert_to_absolute(rest, path)]
   defp do_convert_to_absolute([%{uri: "http://" <> _} = el | rest], path),
