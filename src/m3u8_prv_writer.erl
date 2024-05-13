@@ -134,6 +134,10 @@ medias([Media|Medias]) ->
      (attribut(Media, autoselect, <<"AUTOSELECT">>, false))/binary,
      (attribut(Media, forced, <<"FORCED">>, false))/binary,
      (attribut(Media, stream_id, <<"STREAM-ID">>, true))/binary,
+     (attribut(Media, codecs, <<"CODECS">>, true,
+               fun(C) ->
+                   bucbinary:join([w_to_binary(E) || E <- C], <<",">>)
+               end))/binary,
      (attribut(Media, characteristics, <<"CHARACTERISTICS">>, true))/binary
    >>
    |medias(Medias)].

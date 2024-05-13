@@ -150,6 +150,13 @@ defmodule M3U8 do
   def alter_manifest_key(m3u8, _key_token),
     do: m3u8
 
+  def add_codecs(%{medias: medias, playlists: playlists} = m3u8) do
+    m3u8
+    |> Map.put(:medias, add_codecs_medias(medias))
+    |> Map.put(:playlists, add_codecs_playlists(playlists))
+  end
+  def add_codecs(m3u8), do: m3u8
+
 
   ###############
   ##  private  ##
@@ -196,5 +203,15 @@ defmodule M3U8 do
       {:ok, uri} -> uri
       {:error, _} -> path <> uri
     end
+  end
+
+  defp add_codecs_medias([]), do: []
+  defp add_codecs_medias([media | rest]) do
+    [media |> Map.put(:codecs, ["mp4a.40.2"]) | add_codecs_medias(rest)]
+  end
+
+  defp add_codecs_playlists([]), do: []
+  defp add_codecs_playlists([playlist | rest]) do
+    [playlist |> Map.put(:codecs, ["avc1.640029"]) | add_codecs_playlists(rest)]
   end
 end
