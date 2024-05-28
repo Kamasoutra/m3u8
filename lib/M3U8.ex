@@ -115,7 +115,7 @@ defmodule M3U8 do
 
   def absolute_manifest(url) do
     with  {:ok, %URI{} = uri} <- url |> validate_uri(),
-          abs_path <- uri |> extract_abosult_path(),
+          abs_path <- uri |> extract_absolute_path(),
           {:ok, m3u8} <- url |> parse()
     do
       absolute_manifest(m3u8, abs_path)
@@ -173,12 +173,13 @@ defmodule M3U8 do
     end
   end
 
-  defp extract_abosult_path(%URI{} = uri) do
+  defp extract_absolute_path(%URI{} = uri) do
     abs_path =
-      %URI{uri | path: uri.path
-                       |> String.split("/")
-                       |> Enum.slice(0..-2)
-                       |> Enum.join("/")
+      %URI{
+        uri
+        |
+        path: uri.path |> String.split("/") |> Enum.slice(0..-2) |> Enum.join("/"),
+        query: nil
       }
       |> URI.to_string()
     abs_path <> "/"
