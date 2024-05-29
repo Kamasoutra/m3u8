@@ -115,7 +115,7 @@ defmodule M3U8 do
 
   def absolute_manifest(url) do
     with  {:ok, %URI{} = uri} <- url |> validate_uri(),
-          abs_path <- uri |> extract_abosult_path(),
+          abs_path <- uri |> extract_absolute_path(),
           {:ok, m3u8} <- url |> parse()
     do
       absolute_manifest(m3u8, abs_path)
@@ -150,6 +150,13 @@ defmodule M3U8 do
   def alter_manifest_key(m3u8, _key_token),
     do: m3u8
 
+  def add_codecs(%{medias: medias, playlists: playlists} = m3u8) do
+    m3u8
+    |> Map.put(:medias, add_codecs_medias(medias))
+    |> Map.put(:playlists, add_codecs_playlists(playlists))
+  end
+  def add_codecs(m3u8), do: m3u8
+
 
   ###############
   ##  private  ##
@@ -166,12 +173,13 @@ defmodule M3U8 do
     end
   end
 
-  defp extract_abosult_path(%URI{} = uri) do
+  defp extract_absolute_path(%URI{} = uri) do
     abs_path =
-      %URI{uri | path: uri.path
-                       |> String.split("/")
-                       |> Enum.slice(0..-2)
-                       |> Enum.join("/")
+      %URI{
+        uri
+        |
+        path: uri.path |> String.split("/") |> Enum.slice(0..-2) |> Enum.join("/"),
+        query: nil
       }
       |> URI.to_string()
     abs_path <> "/"
@@ -196,5 +204,15 @@ defmodule M3U8 do
       {:ok, uri} -> uri
       {:error, _} -> path <> uri
     end
+  end
+
+  defp add_codecs_medias([]), do: []
+  defp add_codecs_medias([media | rest]) do
+    [media |> Map.put(:codecs, ["mp4a.40.2"]) | add_codecs_medias(rest)]
+  end
+
+  defp add_codecs_playlists([]), do: []
+  defp add_codecs_playlists([playlist | rest]) do
+    [playlist |> Map.put(:codecs, ["avc1.640029"]) | add_codecs_playlists(rest)]
   end
 end
